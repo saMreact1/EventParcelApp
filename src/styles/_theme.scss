@@ -1,0 +1,41 @@
+@use 'tokens' as tokens;
+
+html {
+  color-scheme: light;
+
+  // Material 3 CSS custom properties
+  --mat-sys-primary: #{tokens.$color-primary};
+  --mat-sys-on-primary: #{tokens.$color-neutral-50};
+  --mat-sys-primary-container: #{rgba(tokens.$color-primary, 0.12)};
+  --mat-sys-on-primary-container: #{tokens.$color-primary-dark};
+  --mat-sys-secondary: #{tokens.$color-secondary};
+  --mat-sys-on-secondary: #{tokens.$color-neutral-900};
+  --mat-sys-secondary-container: #{rgba(tokens.$color-secondary, 0.12)};
+  --mat-sys-on-secondary-container: #{tokens.$color-secondary-dark};
+  --mat-sys-surface: #{tokens.$color-bg-primary};
+  --mat-sys-on-surface: #{tokens.$color-text-primary};
+  --mat-sys-surface-variant: #{tokens.$color-bg-secondary};
+  --mat-sys-on-surface-variant: #{tokens.$color-text-secondary};
+  --mat-sys-outline: #{tokens.$color-border};
+  --mat-sys-outline-variant: #{tokens.$color-border-hover};
+  --mat-sys-error: #{tokens.$color-error};
+  --mat-sys-on-error: #{tokens.$color-neutral-50};
+
+  // Typography
+  --mat-sys-headline-font: #{tokens.$font-heading};
+  --mat-sys-body-font: #{tokens.$font-body};
+}
+
+// PrimeNG CSS custom properties
+:root {
+  --p-primary-color: #{tokens.$color-primary};
+  --p-primary-contrast-color: #{tokens.$color-neutral-50};
+  --p-primary-hover-color: #{tokens.$color-primary-light};
+  --p-primary-active-color: #{tokens.$color-primary-dark};
+  --p-highlight-bg: #{rgba(tokens.$color-primary, 0.08)};
+  --p-highlight-text-color: #{tokens.$color-primary};
+  --p-border-radius: #{tokens.$radius-md};
+  --p-content-border-radius: #{tokens.$radius-lg};
+  --p-content-padding: #{tokens.$spacing-4};
+  --p-transition-duration: #{tokens.$transition-base};
+}

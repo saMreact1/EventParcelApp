@@ -1,0 +1,300 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="h-8 w-8 rounded-lg bg-[#8B1A1A] flex items-center justify-center">
+          <span class="text-sm font-bold text-white">EP</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-900">EventParcel</span>
+      </div>
+      @if (cartUniqueCount > 0) {
+        <button (click)="showCart.set(!showCart())"
+                class="relative flex items-center gap-2 rounded-lg bg-[#8B1A1A]/10 px-3 py-2 text-sm font-semibold text-[#8B1A1A] hover:bg-[#8B1A1A]/20 transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+          </svg>
+          Cart
+          <span class="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-[#8B1A1A] text-white text-[10px] font-bold flex items-center justify-center">{{ cartItemCount }}</span>
+        </button>
+      } @else {
+        <span class="text-xs text-gray-400">Aso-Ebi Concierge</span>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="mx-auto max-w-4xl px-4 py-12 text-center">
+      <div class="h-8 w-8 border-2 border-[#8B1A1A] border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <p class="mt-3 text-sm text-gray-500">Loading event...</p>
+    </div>
+  } @else if (error()) {
+    <div class="mx-auto max-w-4xl px-4 py-12 text-center">
+      <div class="rounded-xl border border-gray-200 bg-white p-8">
+        <svg class="h-12 w-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+        <p class="text-sm text-gray-600">{{ error() }}</p>
+      </div>
+    </div>
+  } @else if (event(); as ev) {
+    <!-- Event Hero -->
+    <div class="relative bg-[#8B1A1A] text-white overflow-hidden">
+      @if (ev.coverImageUrl) {
+        <img [src]="ev.coverImageUrl" class="absolute inset-0 h-full w-full object-cover opacity-30" alt="" />
+      }
+      <div class="relative mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+        <p class="text-sm text-white/70 mb-2 font-medium">You're invited to</p>
+        <h1 class="text-3xl font-bold sm:text-4xl tracking-tight">{{ ev.title }}</h1>
+        <div class="mt-4 flex flex-wrap gap-4 text-sm text-white/80">
+          @if (ev.eventDate) {
+            <span class="flex items-center gap-1.5">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              {{ ev.eventDate | date:'longDate' }}
+            </span>
+          }
+          @if (ev.venue || ev.city) {
+            <span class="flex items-center gap-1.5">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+              {{ ev.venue }}{{ ev.city ? ', ' + ev.city : '' }}
+            </span>
+          }
+        </div>
+        @if (ev.description) {
+          <p class="mt-4 text-sm text-white/70 max-w-2xl leading-relaxed">{{ ev.description }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Packages Section -->
+    <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+      <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-900">Select Your Fabric</h2>
+        <p class="text-sm text-gray-500 mt-1">Choose the aso-ebi packages you'd like to order</p>
+      </div>
+
+      @if (filterGroupId() !== null) {
+        <div class="mb-6 flex items-center gap-3 rounded-lg bg-[#8B1A1A]/5 border border-[#8B1A1A]/10 px-4 py-3">
+          <svg class="h-5 w-5 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          <span class="text-sm text-gray-700">Viewing a specific group</span>
+          <a [routerLink]="'/event/' + route.snapshot.paramMap.get('code')" class="ml-auto text-sm font-medium text-[#8B1A1A] hover:text-[#6D1515] transition-colors">
+            View All Groups
+          </a>
+        </div>
+      }
+
+      @for (group of filteredGroups(); track group.id) {
+        <div class="mb-8">
+          <!-- Group Header -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-8 w-1 rounded-full bg-[#8B1A1A]"></div>
+            <div>
+              <h3 class="text-base font-semibold text-gray-900">{{ group.name }}</h3>
+              @if (group.description) {
+                <p class="text-xs text-gray-500 mt-0.5">{{ group.description }}</p>
+              }
+            </div>
+            <span class="ml-auto text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2.5 py-1">
+              {{ group.privacy }}
+            </span>
+          </div>
+
+          <!-- Package Cards Grid -->
+          @if (group.packages && group.packages.length > 0) {
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              @for (pkg of group.packages; track pkg.id) {
+                <div class="group relative rounded-xl border-2 transition-all duration-200"
+                     [class.border-[#8B1A1A]]="isInCart(pkg.id)"
+                     [class.bg-red-50]="isInCart(pkg.id)"
+                     [class.border-gray-200]="!isInCart(pkg.id)"
+                     [class.bg-white]="!isInCart(pkg.id)"
+                     [class.hover:border-gray-300]="!isInCart(pkg.id)">
+
+                  <!-- In-Cart Badge -->
+                  @if (isInCart(pkg.id)) {
+                    <div class="absolute top-3 right-3 z-10 h-6 w-6 rounded-full bg-[#8B1A1A] flex items-center justify-center shadow">
+                      <svg class="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    </div>
+                  }
+
+                  <!-- Image -->
+                  @if (pkg.imageUrl) {
+                    <img [src]="pkg.imageUrl" [alt]="pkg.name" class="h-44 w-full rounded-t-xl object-cover" />
+                  } @else {
+                    <div class="h-44 bg-gradient-to-br from-[#f5e6e6] via-[#faf0f0] to-white rounded-t-xl flex items-center justify-center">
+                      <svg class="h-12 w-12 text-[#8B1A1A]/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z"/></svg>
+                    </div>
+                  }
+
+                  <!-- Details -->
+                  <div class="p-4">
+                    <h4 class="text-sm font-bold text-gray-900 group-hover:text-[#8B1A1A] transition-colors">{{ pkg.name }}</h4>
+                    @if (pkg.description) {
+                      <p class="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{{ pkg.description }}</p>
+                    }
+
+                    <div class="mt-3 flex items-end justify-between">
+                      <div>
+                        <span class="text-lg font-bold text-[#8B1A1A]">{{ formatPrice(pkg.price, group.currency) }}</span>
+                      </div>
+                      @if (pkg.quantity != null && pkg.quantity > 0) {
+                        <span class="text-xs text-gray-400">{{ pkg.quantity }} available</span>
+                      }
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-1.5 mb-3">
+                      @if (pkg.deliveryType) {
+                        <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+                          {{ pkg.deliveryType }}
+                        </span>
+                      }
+                      @if (pkg.packageSize) {
+                        <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600">
+                          {{ pkg.packageSize }}
+                        </span>
+                      }
+                    </div>
+
+                    <!-- Add to Cart / Quantity Controls -->
+                    @if (isInCart(pkg.id)) {
+                      <div class="flex items-center gap-3">
+                        <div class="flex items-center rounded-lg border border-gray-200 bg-white">
+                          <button (click)="decrementQty(pkg.id); $event.stopPropagation()"
+                                  class="h-9 w-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-l-lg transition-colors">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg>
+                          </button>
+                          <span class="w-8 text-center text-sm font-semibold text-gray-900">{{ getQty(pkg.id) }}</span>
+                          <button (click)="incrementQty(pkg.id); $event.stopPropagation()"
+                                  class="h-9 w-9 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-r-lg transition-colors">
+                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                          </button>
+                        </div>
+                        <button (click)="removeFromCart(pkg.id); $event.stopPropagation()"
+                                class="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
+                          Remove
+                        </button>
+                      </div>
+                    } @else {
+                      <button (click)="addToCart(pkg); $event.stopPropagation()"
+                              class="w-full rounded-lg border-2 border-[#8B1A1A] bg-white px-4 py-2 text-sm font-semibold text-[#8B1A1A] hover:bg-[#8B1A1A] hover:text-white transition-all flex items-center justify-center gap-2">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                        Add to Cart
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
+              <svg class="h-10 w-10 text-gray-300 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+              <p class="text-sm text-gray-500">No packages in this group yet</p>
+            </div>
+          }
+        </div>
+      }
+
+      @if (groups().length === 0 && !loading()) {
+        <div class="rounded-xl border border-dashed border-gray-300 bg-white p-12 text-center">
+          <svg class="h-12 w-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z"/></svg>
+          <p class="text-sm font-medium text-gray-900">No fabric packages available</p>
+          <p class="text-xs text-gray-500 mt-1">The host hasn't added any packages yet</p>
+        </div>
+      }
+    </div>
+
+    <!-- Sticky Bottom Bar -->
+    @if (cartUniqueCount > 0) {
+      <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t border-gray-200 px-4 py-4 shadow-lg z-30">
+        <div class="mx-auto max-w-4xl flex items-center justify-between">
+          <div>
+            <span class="text-sm font-medium text-gray-900">{{ cartItemCount }} item{{ cartItemCount > 1 ? 's' : '' }} in cart</span>
+            <p class="text-lg font-bold text-[#8B1A1A]">{{ formatPrice(cartTotal, cartCurrency) }}</p>
+          </div>
+          <button (click)="proceedToCheckout()"
+                  class="rounded-lg bg-[#8B1A1A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#6D1515] active:scale-95 transition-all">
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Cart Panel -->
+    @if (showCart()) {
+      <div class="fixed inset-0 z-40 flex justify-end" (click)="showCart.set(false)">
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative w-full max-w-md bg-white shadow-xl flex flex-col" (click)="$event.stopPropagation()">
+          <!-- Cart Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+            <h2 class="text-base font-semibold text-gray-900">Your Cart</h2>
+            <button (click)="showCart.set(false)" class="text-gray-400 hover:text-gray-600">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Cart Items -->
+          <div class="flex-1 overflow-y-auto px-5 py-4">
+            @if (cartItems().length === 0) {
+              <div class="py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+                </svg>
+                <p class="text-sm text-gray-500">Your cart is empty</p>
+              </div>
+            } @else {
+              <div class="space-y-4">
+                @for (item of cartItems(); track item.pkg.id) {
+                  <div class="flex gap-3 rounded-lg border border-gray-200 p-3">
+                    @if (item.pkg.imageUrl) {
+                      <img [src]="item.pkg.imageUrl" [alt]="item.pkg.name" class="h-16 w-16 rounded-lg object-cover shrink-0" />
+                    } @else {
+                      <div class="h-16 w-16 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <svg class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v13.5A1.5 1.5 0 003.75 21z"/></svg>
+                      </div>
+                    }
+                    <div class="flex-1 min-w-0">
+                      <h4 class="text-sm font-semibold text-gray-900 truncate">{{ item.pkg.name }}</h4>
+                      <p class="text-xs text-gray-500">{{ formatPrice(item.pkg.price, getGroupForPackage(item.pkg)?.currency) }} each</p>
+                      <div class="flex items-center justify-between mt-2">
+                        <div class="flex items-center rounded-lg border border-gray-200 bg-white">
+                          <button (click)="decrementQty(item.pkg.id)"
+                                  class="h-7 w-7 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-l-lg">
+                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg>
+                          </button>
+                          <span class="w-6 text-center text-xs font-semibold text-gray-900">{{ item.qty }}</span>
+                          <button (click)="incrementQty(item.pkg.id)"
+                                  class="h-7 w-7 flex items-center justify-center text-gray-500 hover:bg-gray-50 rounded-r-lg">
+                            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                          </button>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ formatPrice(item.subtotal, getGroupForPackage(item.pkg)?.currency) }}</span>
+                      </div>
+                    </div>
+                    <button (click)="removeFromCart(item.pkg.id)"
+                            class="text-gray-300 hover:text-red-500 transition-colors self-start">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Cart Footer -->
+          @if (cartItems().length > 0) {
+            <div class="border-t border-gray-200 px-5 py-4">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-medium text-gray-900">Total</span>
+                <span class="text-lg font-bold text-[#8B1A1A]">{{ formatPrice(cartTotal, cartCurrency) }}</span>
+              </div>
+              <button (click)="proceedToCheckout(); showCart.set(false)"
+                      class="w-full rounded-lg bg-[#8B1A1A] px-6 py-3 text-sm font-semibold text-white hover:bg-[#6D1515] active:scale-95 transition-all">
+                Proceed to Checkout
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

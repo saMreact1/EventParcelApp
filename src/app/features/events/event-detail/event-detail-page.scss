@@ -1,0 +1,25 @@
+:host { display: block; }
+
+.hero-cover {
+  background-size: cover;
+  background-position: center;
+}
+
+.group-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+}
+
+.mini-map {
+  height: 200px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

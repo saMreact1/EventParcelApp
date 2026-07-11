@@ -1,0 +1,143 @@
+<div class="space-y-6">
+  <div class="rounded-xl bg-white border border-gray-200 p-5">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-lg font-semibold text-gray-900">Co-Hosts</h2>
+      <button (click)="showAddForm.set(true)" [disabled]="!selectedEventId()"
+              class="inline-flex items-center gap-2 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#6D1515] transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Co-Host
+      </button>
+    </div>
+
+    <!-- Event Selector -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-1.5">Select Event</label>
+      @if (eventsLoading()) {
+        <div class="flex items-center gap-2 text-sm text-gray-500">
+          <svg class="animate-spin h-4 w-4 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          Loading events...
+        </div>
+      } @else {
+        <select (change)="onEventChange(+$any($event.target).value)"
+                class="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+          <option value="">Choose an event</option>
+          @for (ev of events(); track ev.id) {
+            <option [value]="ev.id">{{ ev.title }}</option>
+          }
+        </select>
+      }
+    </div>
+
+    @if (!selectedEventId()) {
+      <div class="py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <p class="text-sm text-gray-500">Select an event to manage co-hosts</p>
+      </div>
+    } @else {
+      <!-- Search -->
+      <div class="relative mb-6">
+        <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" placeholder="Search co-hosts..."
+               [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+               class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+      </div>
+
+      @if (loading()) {
+        <div class="py-16 text-center">
+          <svg class="animate-spin mx-auto h-8 w-8 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+        </div>
+      } @else if (filteredCoHosts().length === 0) {
+        <div class="py-16 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <p class="text-sm text-gray-500">No co-hosts added yet</p>
+        </div>
+      } @else {
+        <div class="space-y-3">
+          @for (coHost of filteredCoHosts(); track coHost.id) {
+            <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 hover:bg-gray-50/50 transition-colors">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="h-10 w-10 rounded-full bg-[#8B1A1A]/10 flex items-center justify-center shrink-0">
+                  <span class="text-sm font-semibold text-[#8B1A1A]">{{ coHost.userName?.charAt(0) || '?' }}</span>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ coHost.userName }}</p>
+                  <div class="flex items-center gap-3 mt-0.5">
+                    <span class="text-xs text-gray-500 truncate">{{ coHost.userEmail }}</span>
+                    <span class="rounded-full px-2 py-0.5 text-xs font-medium"
+                          [class]="coHost.permission === 'EDIT' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600'">
+                      {{ coHost.permission }}
+                    </span>
+                    <span class="text-xs text-gray-400">Invited {{ coHost.invitedAt | date:'mediumDate' }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0 ml-4">
+                <button (click)="togglePermission(coHost)"
+                        class="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  {{ coHost.permission === 'VIEW' ? 'Upgrade to Edit' : 'Downgrade to View' }}
+                </button>
+                <button (click)="removeCoHost(coHost.id)"
+                        class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>
+
+<!-- Add Co-Host Modal -->
+@if (showAddForm()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+      <h2 class="text-base font-semibold text-gray-900 mb-1">Add Co-Host</h2>
+      <p class="text-xs text-gray-500 mb-4">Invite someone to help manage this event</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+          <input type="email" placeholder="cohost@email.com"
+                 [ngModel]="addForm().email" (ngModelChange)="updateFormEmail($event)"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Permission</label>
+          <select [ngModel]="addForm().permission" (ngModelChange)="updateFormPermission($event)"
+                  class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+            <option value="VIEW">View Only</option>
+            <option value="EDIT">Edit</option>
+          </select>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" (click)="showAddForm.set(false); addForm.set({ email: '', permission: 'VIEW' })"
+                  class="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button type="button" (click)="addCoHost()" [disabled]="!addForm().email.trim() || adding()"
+                  class="flex-1 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] disabled:opacity-50">
+            {{ adding() ? 'Adding...' : 'Add Co-Host' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,145 @@
+<div class="space-y-6">
+  <div class="rounded-xl bg-white border border-gray-200 p-5">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900">Discount Codes</h2>
+        <p class="text-sm text-gray-500 mt-0.5">Manage discount codes for your events</p>
+      </div>
+      <div class="flex items-center gap-3">
+        @if (events().length > 1) {
+          <select (change)="onEventChange(+$any($event.target).value)"
+                  class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+            @for (event of events(); track event.id) {
+              <option [value]="event.id" [selected]="event.id === selectedEventId()">{{ event.title }}</option>
+            }
+          </select>
+        }
+        <button (click)="openAddForm()"
+                class="inline-flex items-center gap-2 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#6D1515] transition-colors">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add Discount
+        </button>
+      </div>
+    </div>
+
+    <div class="relative mb-6">
+      <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input type="text" placeholder="Search discounts..."
+             [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+             class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+    </div>
+
+    @if (loading()) {
+      <div class="py-16 text-center">
+        <svg class="animate-spin mx-auto h-8 w-8 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+        <p class="text-sm text-gray-500 mt-3">Loading discounts...</p>
+      </div>
+    } @else if (filteredDiscounts().length === 0) {
+      <div class="py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+        </svg>
+        <p class="text-sm text-gray-500">No discounts created yet</p>
+      </div>
+    } @else {
+      <div class="grid gap-4">
+        @for (discount of filteredDiscounts(); track discount.id) {
+          <div class="rounded-xl border border-gray-200 bg-white p-5 hover:shadow-sm transition-shadow">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-mono text-base font-bold text-gray-900 uppercase tracking-wide">{{ discount.code }}</span>
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium"
+                        [class]="typeBadgeClass(discount.type)">
+                    {{ discount.type }}
+                  </span>
+                  <span class="rounded-full px-2 py-0.5 text-xs font-medium"
+                        [class]="discount.active ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'">
+                    {{ discount.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <span class="font-semibold text-gray-900">{{ formatValue(discount) }}</span>
+                  <span>Used {{ discount.usedCount }}{{ discount.maxUses ? ' / ' + discount.maxUses : ' (unlimited)' }}</span>
+                  <span>for {{ discount.eventTitle }}</span>
+                  @if (discount.expiresAt) {
+                    <span>Expires {{ discount.expiresAt | date:'mediumDate' }}</span>
+                  }
+                </div>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <button (click)="toggleDiscount(discount)"
+                        class="rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors"
+                        [class]="discount.active ? 'border-gray-200 text-gray-600 hover:bg-gray-50' : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'">
+                  {{ discount.active ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button (click)="deleteDiscount(discount)"
+                        class="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+@if (showAddForm()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+      <h2 class="text-base font-semibold text-gray-900 mb-1">Add Discount Code</h2>
+      <p class="text-xs text-gray-500 mb-4">Create a new discount for this event</p>
+      <form [formGroup]="discountForm" (ngSubmit)="addDiscount()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Code *</label>
+          <input type="text" formControlName="code" placeholder="e.g. SUMMER20"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm font-mono uppercase text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+            <select formControlName="type"
+                    class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+              <option value="PERCENT">Percentage (%)</option>
+              <option value="FIXED">Fixed Amount (₦)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Value *</label>
+            <input type="number" formControlName="value" placeholder="0"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Max Uses (optional)</label>
+          <input type="number" formControlName="maxUses" placeholder="Unlimited"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Expires At (optional)</label>
+          <div class="relative cursor-pointer">
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <input #dateInput type="date" formControlName="expiresAt"
+                   (mousedown)="dateInput.showPicker()"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" (click)="showAddForm.set(false)"
+                  class="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+          <button type="submit" [disabled]="discountForm.invalid || adding()"
+                  class="flex-1 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] disabled:opacity-50">Create Discount</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,270 @@
+<div class="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+  <div class="text-center mb-8">
+    <h1 class="text-xl font-bold text-gray-900">Event Groups & Packages</h1>
+    <p class="text-sm text-gray-500 mt-1">Create groups and packages for different types of guests</p>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-12">
+      <svg class="animate-spin mx-auto h-8 w-8 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+    </div>
+  } @else {
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+      @for (group of groups(); track group.id) {
+        <div class="rounded-xl border border-gray-200 bg-white p-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">{{ group.privacy }}</span>
+            <div class="flex items-center gap-2">
+              <button (click)="openEditGroupForm(group)" class="text-gray-400 hover:text-[#8B1A1A] transition-colors" title="Edit group">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+              </button>
+              <button (click)="deleteGroup(group.id)" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete group">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+              </button>
+            </div>
+          </div>
+          <h3 class="text-base font-semibold text-gray-900">{{ group.name }}</h3>
+          <p class="text-xs text-gray-500 mt-0.5">{{ group.description || 'NA' }}</p>
+
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700">Packages</span>
+              <button (click)="openPackageForm(group.id)" class="text-xs text-[#8B1A1A] font-medium hover:text-[#6D1515]">+ Add New</button>
+            </div>
+            @for (pkg of group.packages; track pkg.id) {
+              <div class="flex items-center justify-between rounded-lg border border-gray-100 p-3 mb-2">
+                <div class="flex items-center gap-3">
+                  @if (pkg.imageUrl) {
+                    <img [src]="pkg.imageUrl" class="h-10 w-10 rounded object-cover" />
+                  } @else {
+                    <div class="h-10 w-10 rounded bg-gray-100 flex items-center justify-center">
+                      <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+                    </div>
+                  }
+                  <div>
+                    <p class="text-sm font-medium text-gray-900">{{ pkg.name }}</p>
+                    <p class="text-xs text-gray-500">{{ formatPrice(pkg.price, group.currency) }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button (click)="openEditPackageForm(group, pkg)" class="text-gray-400 hover:text-[#8B1A1A] transition-colors" title="Edit package">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                  </button>
+                  <button (click)="deletePackage(group.id, pkg.id)" class="text-gray-400 hover:text-red-500" title="Delete package">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-xs text-gray-400 text-center py-2">No packages yet</p>
+            }
+          </div>
+
+          <!-- Share Invite -->
+          <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+            <span class="text-xs text-gray-400">Contacts:</span>
+            <button (click)="copyGroupShareLink(group)"
+                    class="inline-flex items-center gap-1.5 text-xs font-medium text-[#8B1A1A] hover:text-[#6D1515] transition-colors">
+              @if (copiedGroupId() === group.id) {
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                Copied!
+              } @else {
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                Share Invite
+              }
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Add New Group Card -->
+      @if (canAddGroup) {
+        <button (click)="showGroupForm.set(true)"
+                class="rounded-xl border-2 border-dashed border-gray-200 bg-white p-5 flex flex-col items-center justify-center min-h-[200px] hover:border-[#8B1A1A]/30 transition-colors">
+          <svg class="h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          <span class="text-sm font-medium text-gray-600">Add New</span>
+        </button>
+      }
+    </div>
+
+    <div class="flex items-center justify-end gap-3">
+      <button (click)="goBack()" class="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button>
+      <button (click)="goToPayment()" class="rounded-lg bg-[#8B1A1A] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] transition-colors">{{ fromCreation() ? 'Continue' : 'Done' }}</button>
+    </div>
+  }
+
+  <!-- New Group Modal -->
+  @if (showGroupForm()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+        <h2 class="text-base font-semibold text-gray-900 mb-1">{{ editingGroup() ? 'Edit Group' : 'New Group' }}</h2>
+        <p class="text-xs text-gray-500 mb-4">{{ editingGroup() ? 'Update group details' : 'Create a group for specific guests' }}</p>
+        <form [formGroup]="groupForm" (ngSubmit)="createGroup()" class="space-y-4">
+          <div>
+            <input type="text" formControlName="name" placeholder="Group Name"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+          <div>
+            <textarea formControlName="description" rows="3" placeholder="Group description (optional)"
+                      class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20 resize-none"></textarea>
+          </div>
+          <div>
+            <select formControlName="currency"
+                    class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+              <option value="NGN">Naira (NGN)</option>
+            </select>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-700 mb-2">Select group privacy</p>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" formControlName="privacy" value="GENERAL" class="accent-[#8B1A1A]" />
+                <span class="text-sm text-gray-700">General</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" formControlName="privacy" value="PRIVATE" class="accent-[#8B1A1A]" />
+                <span class="text-sm text-gray-700">Private</span>
+              </label>
+            </div>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="button" (click)="closeGroupForm()" class="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button type="submit" [disabled]="groupForm.invalid || isSubmitting()" class="flex-1 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] disabled:opacity-50">{{ editingGroup() ? 'Save Changes' : 'Create Group' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- New Package Modal -->
+  @if (showPackageForm()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <h2 class="text-base font-semibold text-gray-900 mb-1">{{ editingPackage() ? 'Edit Package' : 'Create Package' }}</h2>
+        <p class="text-xs text-gray-500 mb-4">{{ editingPackage() ? 'Update package details' : 'How do you want to sell to this group' }}</p>
+        <form [formGroup]="packageForm" (ngSubmit)="createPackage()" class="space-y-4">
+          <!-- Image Upload -->
+          <div>
+            <input type="file" #packageFileInput accept="image/*" (change)="onPackageImageSelected($event)" class="hidden" />
+            @if (packageImagePreview()) {
+              <div class="relative group w-20 h-20">
+                <img [src]="packageImagePreview()" alt="Package preview" class="w-full h-full object-cover rounded-lg border border-gray-200" />
+                <button type="button" (click)="removePackageImage(); packageFileInput.value=''"
+                        class="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600">
+                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            } @else {
+              <button type="button" (click)="packageFileInput.click()"
+                      class="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors">
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5a2.25 2.25 0 002.25-2.25V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/>
+                </svg>
+                Add Image
+              </button>
+            }
+          </div>
+
+          <!-- Package Title -->
+          <div>
+            <input type="text" formControlName="name" placeholder="Add package title"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+
+          <!-- Package Description -->
+          <div>
+            <textarea formControlName="description" rows="3" placeholder="Add package description"
+                      class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20 resize-none"></textarea>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">{{ currencySymbol }}</span>
+              <input type="number" formControlName="price" min="0" placeholder="Enter amount"
+                     class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-8 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+            </div>
+            @if (hostReceives > 0) {
+              <p class="text-sm text-gray-600 mt-1.5">What you will receive: <span class="font-semibold text-gray-900">{{ formatPrice(hostReceives) }}</span></p>
+            }
+            <div class="mt-2 rounded-lg bg-red-50 border border-red-100 px-3 py-2">
+              <p class="text-xs text-gray-600"><span class="font-semibold">P.S:</span> 3.5% fee (plus {{ currencySymbol }}{{ selectedCurrency() === 'NGN' ? '100' : '1' }} if price &ge; {{ currencySymbol }}{{ selectedCurrency() === 'NGN' ? '2,500' : '5' }}) will be deducted as service fee</p>
+            </div>
+          </div>
+
+          <!-- Quantity -->
+          <div>
+            <input type="number" formControlName="quantity" min="0" placeholder="Quantity"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+
+          <!-- Delivery Type -->
+          <div>
+            <p class="text-sm font-medium text-gray-900 mb-1">How would you like to handle delivery?</p>
+            <p class="text-xs text-gray-500 mb-3">With Event Parcel platform, you can manage and track delivery easily.</p>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                     [class.border-[#8B1A1A]]="packageForm.get('deliveryType')?.value === 'PLATFORM'"
+                     [class.bg-red-50/30]="packageForm.get('deliveryType')?.value === 'PLATFORM'">
+                <input type="radio" formControlName="deliveryType" value="PLATFORM" class="accent-[#8B1A1A]" />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Platform Delivery</p>
+                  <p class="text-xs text-gray-500">We handle delivery for you</p>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                     [class.border-[#8B1A1A]]="packageForm.get('deliveryType')?.value === 'SELF_MANAGED'"
+                     [class.bg-red-50/30]="packageForm.get('deliveryType')?.value === 'SELF_MANAGED'">
+                <input type="radio" formControlName="deliveryType" value="SELF_MANAGED" class="accent-[#8B1A1A]" />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Self-Managed</p>
+                  <p class="text-xs text-gray-500">You handle delivery yourself</p>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+                     [class.border-[#8B1A1A]]="packageForm.get('deliveryType')?.value === 'PICKUP'"
+                     [class.bg-red-50/30]="packageForm.get('deliveryType')?.value === 'PICKUP'">
+                <input type="radio" formControlName="deliveryType" value="PICKUP" class="accent-[#8B1A1A]" />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">Pickup</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Package Size (only for Platform Delivery) -->
+          @if (isPlatformDelivery) {
+            <div class="border-t border-gray-100 pt-4">
+              <label class="block text-sm font-semibold text-gray-900 mb-1">Package Size</label>
+              <p class="text-xs text-gray-500 mb-3">To efficiently manage you deliveries, please select the box size your package would fit.</p>
+              <select formControlName="packageSize"
+                      class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+                <option value="" disabled>Select box size</option>
+                <option value="Small Box">Small Box</option>
+                <option value="Medium Box">Medium Box</option>
+                <option value="Large Box">Large Box</option>
+              </select>
+              <div class="mt-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
+                <p class="text-xs text-gray-600"><span class="font-semibold">P.S:</span> Kindly select the best estimate as wrong selection may lead to additional cost for the host.</p>
+              </div>
+            </div>
+          }
+
+          @if (errorMessage()) {
+            <div class="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="flex gap-3 pt-2">
+            <button type="button" (click)="closePackageForm()" class="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+            <button type="submit" [disabled]="packageForm.invalid || isSubmitting()" class="flex-1 rounded-lg bg-[#8B1A1A] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] disabled:opacity-50">{{ editingPackage() ? 'Save Changes' : 'Create Package' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,74 @@
+<div class="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
+  <a (click)="goBack()" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#8B1A1A] transition-colors mb-6 cursor-pointer">
+    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+    Back
+  </a>
+
+  <div class="text-center mb-8">
+    <h1 class="text-xl font-bold text-gray-900">Pickup Details</h1>
+    <p class="text-sm text-gray-500 mt-1">Add pickup contact details and when you want to start the delivery</p>
+  </div>
+
+  <form [formGroup]="pickupForm" (ngSubmit)="onSubmit()">
+    <div class="rounded-xl border border-gray-200 bg-white p-6 space-y-5">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+        <input type="text" formControlName="contactName" placeholder="Enter the name of the contact person"
+               class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contact Phone Number</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-500">+234</span>
+          <input type="tel" formControlName="contactPhone"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-14 pr-4 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Location</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+          <input type="text" formControlName="pickupLocation" placeholder="Click the map icon to add address"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+          <input type="text" formControlName="state" placeholder="Search states..."
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <input type="text" formControlName="city" placeholder="Select state first"
+                 class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+        </div>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Start Date</label>
+          <div class="relative cursor-pointer">
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <input #dateInput type="date" formControlName="pickupStartDate"
+                   (mousedown)="dateInput.showPicker()"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+          <div class="relative cursor-pointer">
+            <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <input #timeInput type="time" formControlName="pickupStartTime"
+                   (mousedown)="timeInput.showPicker()"
+                   class="block w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex items-center justify-end gap-3">
+      <button type="button" (click)="goBack()" class="rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+      <button type="submit" [disabled]="pickupForm.invalid || isSubmitting()" class="rounded-lg bg-[#8B1A1A] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#6D1515] disabled:opacity-50">Continue</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,298 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <!-- Back Button -->
+  <button (click)="goBack()" class="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-[#8B1A1A] transition-colors">
+    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    Back to Orders
+  </button>
+
+  @if (loading()) {
+    <div class="rounded-2xl border border-gray-200 bg-white p-16 text-center">
+      <svg class="animate-spin mx-auto h-8 w-8 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+      </svg>
+      <p class="text-sm text-gray-500 mt-3">Loading order details...</p>
+    </div>
+  } @else if (order(); as o) {
+    <!-- Hero Header -->
+    <div class="relative overflow-hidden rounded-2xl order-hero">
+      <div class="absolute inset-0 bg-gradient-to-br from-[#8B1A1A] via-[#6D1515] to-[#1A1A2E]"></div>
+      <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMC0zMHY2aDZ2LTZoLTZ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-40"></div>
+      <div class="relative px-6 py-8 sm:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wide uppercase"
+                    [class]="statusClass(o.paymentStatus)">
+                {{ statusLabel(o.paymentStatus) }}
+              </span>
+              @if (o.paymentStatus === 'PAID') {
+                <span class="inline-flex items-center gap-1 rounded-full bg-white/15 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-white/90">
+                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                  </svg>
+                  Confirmed
+                </span>
+              }
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">{{ o.orderCode }}</h1>
+            <p class="text-sm text-white/60">Placed on {{ o.createdAt | date:'dd MMMM yyyy \'at\' h:mm a' }}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-3xl font-bold text-white">&#8358;{{ o.totalAmount | number }}</p>
+            <p class="text-xs text-white/50 mt-1">{{ itemCount }} item{{ itemCount !== 1 ? 's' : '' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+          <svg class="h-4 w-4 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+          </svg>
+          Order Items
+        </h2>
+        @if (orderItems().length > 0) {
+          <span class="text-xs text-gray-400">{{ orderItems().length }} item{{ orderItems().length !== 1 ? 's' : '' }}</span>
+        }
+      </div>
+      @if (orderItems().length > 0) {
+        <div class="divide-y divide-gray-50">
+          @for (item of orderItems(); track item.id; let i = $index) {
+            <div class="px-6 py-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors">
+              @if (item.imageUrl) {
+                <img [src]="item.imageUrl" [alt]="item.packageName"
+                     class="h-14 w-14 rounded-xl object-cover flex-shrink-0" />
+              } @else {
+                <div class="h-14 w-14 rounded-xl flex items-center justify-center flex-shrink-0 text-white font-bold text-lg"
+                     [class]="itemGradient(i)">
+                  {{ item.packageName.charAt(0) }}
+                </div>
+              }
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-900">{{ item.packageName }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">&#8358;{{ item.unitPrice | number }} each</p>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-sm font-bold text-gray-900">&#8358;{{ item.subtotal | number }}</p>
+                <p class="text-xs text-gray-400 mt-0.5">Qty: {{ item.quantity }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="px-6 py-8 text-center">
+          <div class="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+            <svg class="h-6 w-6 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 01-1.125-1.125v-3.75zM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-8.25zM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 01-1.125-1.125v-2.25z"/>
+            </svg>
+          </div>
+          <p class="text-sm text-gray-500 font-medium">Item details not available</p>
+          <p class="text-xs text-gray-400 mt-1">Total amount: &#8358;{{ (order()?.totalAmount || 0) | number }}</p>
+        </div>
+      }
+    </div>
+
+    <!-- Guest & Contact Info - Side by Side on Desktop -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <!-- Guest Card -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="h-4 w-4 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+            Guest
+          </h2>
+        </div>
+        <div class="p-6">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-12 w-12 rounded-full bg-gradient-to-br from-[#8B1A1A] to-[#5D0E0E] flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-[#8B1A1A]/20">
+              {{ guestInitials }}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">{{ o.guestName || 'Guest' }}</p>
+              @if (o.guestId) {
+                <p class="text-xs text-gray-400 font-mono mt-0.5">{{ o.guestId }}</p>
+              }
+            </div>
+          </div>
+          <div class="space-y-2.5">
+            @if (o.guestEmail) {
+              <div class="flex items-center gap-2.5 text-sm">
+                <div class="h-7 w-7 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <svg class="h-3.5 w-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                  </svg>
+                </div>
+                <span class="text-gray-600 truncate">{{ o.guestEmail }}</span>
+              </div>
+            }
+            @if (o.guestPhone) {
+              <div class="flex items-center gap-2.5 text-sm">
+                <div class="h-7 w-7 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <svg class="h-3.5 w-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                  </svg>
+                </div>
+                <span class="text-gray-600">{{ o.guestPhone }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping Address Card -->
+      <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100">
+          <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <svg class="h-4 w-4 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+            </svg>
+            Shipping Address
+          </h2>
+        </div>
+        <div class="p-6">
+          @if (o.deliveryAddress) {
+            <div class="flex items-start gap-3">
+              <div class="h-10 w-10 rounded-xl bg-[#8B1A1A]/10 flex items-center justify-center flex-shrink-0">
+                <svg class="h-5 w-5 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-900">{{ o.deliveryAddress }}</p>
+                <p class="text-xs text-gray-500 mt-1">{{ o.deliveryCity }}{{ o.deliveryState ? ', ' + o.deliveryState : '' }}</p>
+              </div>
+            </div>
+          } @else {
+            <div class="text-center py-4">
+              <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-2">
+                <svg class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+                </svg>
+              </div>
+              <p class="text-sm text-gray-400">No shipping address provided</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+          <svg class="h-4 w-4 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/>
+          </svg>
+          Payment Summary
+        </h2>
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold"
+              [class]="statusClass(o.paymentStatus)">
+          {{ statusLabel(o.paymentStatus) }}
+        </span>
+      </div>
+      <div class="p-6">
+        <div class="space-y-3">
+          @for (item of orderItems(); track item.id) {
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-500">{{ item.packageName }} &times; {{ item.quantity }}</span>
+              <span class="text-gray-700 font-medium">&#8358;{{ item.subtotal | number }}</span>
+            </div>
+          }
+          <div class="border-t border-dashed border-gray-200 pt-3 mt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-500">Subtotal</span>
+              <span class="text-sm text-gray-700">&#8358;{{ o.totalAmount | number }}</span>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-base font-bold text-gray-900">Total</span>
+              <span class="text-lg font-bold text-[#8B1A1A]">&#8358;{{ o.totalAmount | number }}</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-1 text-right">Paid by Guest</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Info -->
+    <div class="rounded-2xl overflow-hidden">
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-[#8B1A1A] to-[#5D0E0E]"></div>
+        <div class="relative px-6 py-5 flex items-center gap-4">
+          <div class="h-12 w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white flex-shrink-0 shadow-lg">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-bold text-white">{{ o.eventTitle }}</p>
+            <div class="flex items-center gap-1.5 mt-1">
+              <svg class="h-3.5 w-3.5 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-xs text-white/60">{{ o.createdAt | date:'dd MMM, yyyy \'at\' hh:mm a' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delivery Status -->
+    @if (o.paymentStatus === 'PAID') {
+      @if (o.shipped) {
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-200 p-6">
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-emerald-800">Shipped</p>
+              <p class="text-xs text-emerald-600">This order has been shipped and is on its way.</p>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
+          <button (click)="shipOrder()" [disabled]="shipping()"
+                  class="w-full rounded-xl bg-gradient-to-r from-[#8B1A1A] to-[#6D1515] px-6 py-3.5 text-sm font-bold text-white hover:from-[#6D1515] hover:to-[#5D0E0E] transition-all shadow-lg shadow-[#8B1A1A]/25 hover:shadow-xl hover:shadow-[#8B1A1A]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5">
+            @if (shipping()) {
+              <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Creating Shipment...
+            } @else {
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10m0 0a2 2 0 002 2h1m2-2a2 2 0 002-2m-2 2v2a2 2 0 002 2h10a2 2 0 002-2v-2m-2 2h-1m-1-4a2 2 0 002-2m-2 2h-1m-4-2a2 2 0 002 2m0 0h1m-6-2h1"/>
+              </svg>
+              Mark as Shipped
+            }
+          </button>
+        </div>
+      }
+    }
+  } @else {
+    <div class="rounded-2xl border border-gray-200 bg-white p-16 text-center">
+      <div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+        <svg class="h-8 w-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+      </div>
+      <p class="text-sm font-medium text-gray-900 mb-1">Order not found</p>
+      <p class="text-xs text-gray-400">This order may have been removed or doesn't exist.</p>
+    </div>
+  }
+</div>

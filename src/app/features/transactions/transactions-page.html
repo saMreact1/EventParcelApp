@@ -1,0 +1,164 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <h1 class="text-xl font-semibold text-gray-900">Transactions</h1>
+    @if (transactions().length > 0) {
+      <button (click)="exportCsv()"
+              class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+        </svg>
+        Export
+      </button>
+    }
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="rounded-xl bg-white border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="h-7 w-7 rounded-lg flex items-center justify-center bg-[#8B1A1A]/10">
+          <svg class="h-3.5 w-3.5 text-[#8B1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </span>
+        <span class="text-sm font-medium text-gray-600">Overall Sales</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()?.overallSales ?? 0) }}</p>
+      <p class="text-xs text-gray-500 mt-1">{{ formatUsd(stats()?.overallSalesUsd ?? 0) }}</p>
+    </div>
+    <div class="rounded-xl bg-white border border-gray-200 p-5">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="h-7 w-7 rounded-lg flex items-center justify-center bg-emerald-100">
+          <svg class="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </span>
+        <span class="text-sm font-medium text-gray-600">Net Sales</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats()?.netSales ?? 0) }}</p>
+      <p class="text-xs text-gray-500 mt-1">{{ formatUsd(stats()?.netSalesUsd ?? 0) }}</p>
+    </div>
+  </div>
+
+  <!-- Search + Transaction Cards -->
+  <div class="rounded-xl bg-white border border-gray-200 p-5">
+    <!-- Search -->
+    <div class="relative mb-6">
+      <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input type="text" placeholder="Search..."
+             [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+             (keyup.enter)="onSearch()"
+             class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20" />
+    </div>
+
+    @if (loading()) {
+      <div class="py-16 text-center">
+        <svg class="animate-spin mx-auto h-8 w-8 text-[#8B1A1A]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      </div>
+    } @else if (transactions().length === 0) {
+      <div class="py-16 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-sm text-gray-500">No transactions yet</p>
+      </div>
+    } @else {
+      <!-- Transaction Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        @for (tx of transactions(); track tx.id) {
+          <div class="rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-sm text-gray-600">{{ tx.createdAt | date:'dd MMM, yyyy' }}</span>
+              <button (click)="navigateToOrder(tx.orderCode); $event.stopPropagation()"
+                      class="rounded-full bg-[#8B1A1A]/10 px-3 py-1 text-xs font-semibold text-[#8B1A1A] hover:bg-[#8B1A1A]/20 transition-colors">
+                View Order
+              </button>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Order Number</span>
+                <span class="text-sm font-mono font-medium text-gray-900">{{ tx.orderCode }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Guest Payment</span>
+                <span class="text-sm font-medium text-gray-900">{{ formatCurrency(tx.guestPayment) }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500">Amount Received</span>
+                <span class="text-sm font-medium text-emerald-600">{{ formatCurrency(tx.amountReceived) }}</span>
+              </div>
+            </div>
+            <button (click)="toggleBreakdown(tx.id)"
+                    class="w-full mt-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
+              See Breakdown
+              <svg class="h-3 w-3 transition-transform" [class.rotate-180]="isExpanded(tx.id)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            @if (isExpanded(tx.id)) {
+              <div class="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-500">Platform Fee</span>
+                  <span class="text-xs font-medium text-gray-700">{{ formatCurrency(tx.platformFee) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-500">Event</span>
+                  <span class="text-xs font-medium text-gray-700 truncate ml-2">{{ tx.eventTitle }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-500">Guest</span>
+                  <span class="text-xs font-medium text-gray-700">{{ tx.guestName }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+        <div class="flex items-center gap-1">
+          <button (click)="prevPage()" [disabled]="currentPage() === 0"
+                  class="p-1.5 rounded text-gray-400 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          @for (p of pageNumbers(); track p) {
+            <button (click)="goToPage(p)"
+                    class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                    [class.bg-[#8B1A1A]]="currentPage() === p"
+                    [class.text-white]="currentPage() === p"
+                    [class.text-gray-600]="currentPage() !== p"
+                    [class.hover:bg-gray-100]="currentPage() !== p">
+              {{ p + 1 }}
+            </button>
+          }
+          <button (click)="nextPage()" [disabled]="currentPage() >= totalPages() - 1"
+                  class="p-1.5 rounded text-gray-400 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-500">Show result:</span>
+          <select [ngModel]="pageSize()"
+                  (ngModelChange)="onPageSizeChange(+$event)"
+                  class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-[#8B1A1A] focus:outline-none focus:ring-2 focus:ring-[#8B1A1A]/20">
+            <option [ngValue]="6">6</option>
+            <option [ngValue]="12">12</option>
+            <option [ngValue]="24">24</option>
+            <option [ngValue]="48">48</option>
+          </select>
+        </div>
+      </div>
+    }
+  </div>
+</div>
