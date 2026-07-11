@@ -26,7 +26,7 @@
     "leaflet": "^1.9.4",
     "postcss": "^8.5.16",
     "primeicons": "^7.0.0",
-    "primeng": "^21.1.9",
+    "primeng": "^22.0.0-rc.2",
     "rxjs": "~7.8.0",
     "tailwindcss": "^4.3.2",
     "tslib": "^2.3.0",
